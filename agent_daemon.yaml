@@ -26,7 +26,7 @@ spec:
           - name: DD_APM_ENABLED
             value: "true"
           - name: DD_API_KEY
-            value: 0518434004f98038d3a4154f1565139d
+            value: XXX
           - name: KUBERNETES
             value: "yes"
           - name: DD_COLLECT_KUBERNETES_EVENTS
