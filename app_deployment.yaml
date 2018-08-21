@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flaskapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flaskapp
+  template:
+    metadata:
+      labels:
+        app: flaskapp
+      annotations:
+        ad.datadoghq.com/flaskapp.check_names: '["prometheus"]'
+        ad.datadoghq.com/flaskapp.init_configs: '[{}]'
+        ad.datadoghq.com/flaskapp.instances: '[{"prometheus_url":"%%host%%/metrics","metrics":["*"],"namespace":"apple"}]'
+        # 6.5 ad.datadoghq.com/flaskapp.logs: '[{"type":"file","path":"/var/log/mylog.json","service":"flask","source":"python","sourcecategory":"sourcecode"}]'
+    spec:
+      containers:
+      - name: flaskapp
+        image: sample_flask:007
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5000
+        env:
+        - name: DD_AGENT_SERVICE_HOST
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        - name: DD_AGENT_SERVICE_PORT
+          value: '8126'
+        - name: DD_AGENT_STATSD_PORT
+          value: '8125'
+        - name: POSTGRES_PORT
+          value: '5432'
+        volumeMounts:
+          - name: flasklogs
+            mountPath: /var/log
+      volumes:
+        - hostPath:
+            path: /var/log
+          name: flasklogs

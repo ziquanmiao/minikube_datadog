@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+      annotations:
+        ad.datadoghq.com/postgres.check_names: '["postgres"]'
+        ad.datadoghq.com/postgres.init_configs: '[{}]'
+        ad.datadoghq.com/postgres.instances: '[{"host": "%%host%%", "port": "%%port%%","username": "datadog","password": "datadog" }]'
+    spec:
+      containers:
+      - name: postgres
+        image: sample_postgres:007
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5432
+          hostPort: 5432
+          name: postgresport
+          protocol: TCP
