@@ -68,14 +68,27 @@ Deploy a nonfunction pause container to demonstrate Datadog [AutoDiscovery](http
 kubectl create -f pause.yaml
 ```
 
-deploy kubernetes state files to demonstrate [kubernetes_state check](https://docs.datadoghq.com/integrations/kubernetes/#setup-kubernetes-state)
+Deploy kubernetes state files to demonstrate [kubernetes_state check](https://docs.datadoghq.com/integrations/kubernetes/#setup-kubernetes-state)
 
 ```
 kubectl create -f kubernetes
 ```
 
+Deploy a logs ConfigMap to demonstrate Datadog Daemon Log parsing
+
+```
+kubectl create -f logsConfigMap.yaml
+```
+
 And we are done!
 
-## Points of Interest
-
+# Points of Interest
 WIP
+
+## Infrastructure Product
+
+## Live Process Monitoring
+
+## APM Product
+
+## Logs Product
