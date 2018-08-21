@@ -83,12 +83,21 @@ kubectl create -f logsConfigMap.yaml
 And we are done!
 
 # Points of Interest
-WIP
 
-## Infrastructure Product
+The Flask App offers 3 endpoints that returns some text `IP:5000/`, `IP:5000/query`, `IP:5000/bad`
 
-## Live Process Monitoring
+Run ```kubectl get services``` to find the IP address of the flask application service
 
-## APM Product
+You can then access the endpoints within the minikube vm:
+```
+minikube ssh
+```
 
-## Logs Product
+then hit one of the following:
+```
+curl FLASK_SERVICE_IP:5000/
+curl FLASK_SERVICE_IP:5000/query
+curl FLASK_SERVICE_IP:5000/bad
+```
+to see the Flask application at work
+
