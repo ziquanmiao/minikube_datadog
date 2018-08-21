@@ -3,6 +3,14 @@ import os
 import time
 import random
 
+import datadog
+dd_options = {
+    'statsd_host' : os.environ['DD_AGENT_SERVICE_HOST'],
+    'statsd_port' : os.environ['DD_AGENT_STATSD_PORT']
+}
+datadog.initialize(dd_options)
+
+
 #flask stuff
 from flask import Flask
 import blinker as _
@@ -59,6 +67,7 @@ logger.setLevel(logging.INFO)
 
 @app.route('/')
 def hello_world():
+    datadog.statsd.increment('counter_metric',tags=['endpoint:hello_world'])
     my_thread= threading.currentThread().getName()
     time.sleep(0.01)
     logger.info('hello_world has been executed', 
@@ -73,6 +82,8 @@ def hello_world():
 
 @app.route('/bad')
 def bad():
+    datadog.statsd.increment('counter_metric',tags=['endpoint:bad'])
+
     my_thread= threading.currentThread().getName()
     time.sleep(0.01)
     logger.info('hello_world has been executed', 
@@ -87,6 +98,7 @@ def bad():
 
 @app.route('/query')
 def return_results():
+    datadog.statsd.increment('counter_metric',tags=['endpoint:query'])
     with tracer.trace("Random wait", service="my-flask-app") as span:
         my_thread= threading.currentThread().getName()
         time.sleep(0.01)

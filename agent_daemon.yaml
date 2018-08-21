@@ -26,7 +26,7 @@ spec:
           - name: DD_APM_ENABLED
             value: "true"
           - name: DD_API_KEY
-            value: XXXX
+            value: 0518434004f98038d3a4154f1565139d
           - name: KUBERNETES
             value: "yes"
           - name: DD_COLLECT_KUBERNETES_EVENTS
@@ -44,6 +44,8 @@ spec:
           - name: DD_LOGS_ENABLED
             value: "true"
           - name: DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL
+            value: "true"
+          - name: NON_LOCAL_TRAFFIC
             value: "true"
           # - name: DD_PROXY_HOST
           #   value: 1.2.34

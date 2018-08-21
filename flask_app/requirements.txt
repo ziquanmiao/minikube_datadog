@@ -4,3 +4,4 @@ blinker==1.4
 psycopg2==2.7.5
 sqlalchemy==1.1.5
 json_log_formatter==0.2.0
+datadog==0.15.0
