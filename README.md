@@ -7,7 +7,7 @@ In addition, you will need a Datadog Account and have access to an API key -- St
 
 This repo showcases a minikube-based path to deploying a simple flask app container that returns some sample text contained in a separate postgres container. 
 
-The goal of this repo is to demonstrate the steps involved in installing a [Datadog
+The goal of this repo is to demonstrate the steps involved in installing a [Datadog]
 (datadoghq.com/) agent to demonstrate the product's [Infrastructure Monitoring](https://www.datadoghq.com/server-monitoring/), [Application Performance Monitoring](https://www.datadoghq.com/blog/announcing-apm/), [Live Process/Container Monitoring](https://www.datadoghq.com/blog/live-process-monitoring/), and [Log Monitoring Capabilities](https://www.datadoghq.com/blog/announcing-logs/) in a Kubernetes x Docker based environment.
 
 This repo makes no accommodations for proxy scenarios or situations where machines are unable to pull from the internet to download packages
