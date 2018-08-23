@@ -26,7 +26,10 @@ spec:
           - name: DD_APM_ENABLED
             value: "true"
           - name: DD_API_KEY
-            value: XXX
+            valueFrom:
+              secretKeyRef:
+                name: datadog-api
+                key: token
           - name: KUBERNETES
             value: "yes"
           - name: DD_COLLECT_KUBERNETES_EVENTS

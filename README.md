@@ -35,6 +35,11 @@ You will need to use minikube's docker engine by running:
 eval $(minikube docker-env)
 ```
 
+Store the API key in a kubernetes secret so its not directly in the deployment code
+```
+kubectl create secret generic datadog-api --from-literal=token=___INSERT_API_KEY_HERE
+```
+
 ## build images
 
 Then, build the images based off the provided Dockerfiles
@@ -86,7 +91,7 @@ And we are done!
 
 The Flask App offers 3 endpoints that returns some text `IP:5000/`, `IP:5000/query`, `IP:5000/bad`
 
-Run ```kubectl get services``` to find the IP address of the flask application service
+Run ```kubectl get services``` to find the [FLASK_SERVICE_IP](https://cl.ly/a344b20d5481) address of the flask application service
 
 You can then access the endpoints within the minikube vm:
 ```
@@ -103,7 +108,7 @@ to see the Flask application at work
 
 # Some points of interest
 
-A side-care Datadog agent container is deployed and is now acting as a collector and middleman between the spun up services and Datadog backend. Through actions -- curling the endpoints -- and the lack-thereof, metrics will be generated and directed to the corresponding Datadog Account based off your supplied API key
+The Datadog agent container should now be deployed and is acting as a collector and middleman between the services and Datadog's backend. Through actions -- curling the endpoints -- and doing nothing, metrics will be generated and directed to the corresponding Datadog Account based off your supplied API key
 
 Below is a quick discussion on some points of interest
 
@@ -131,10 +136,27 @@ Application/Service Pods and Containers go up and down. The Datadog agent tradit
 
 Rather than having a Mechanical Turk sit on standy ready to make the changes, the containerized accommodates makes this process automagic using [Autodiscovery](https://docs.datadoghq.com/agent/autodiscovery/) where the agent has the capability to monitor the annotations of deployments and automatically establish checks as pods come and go.
 
+To set up autodiscovery, you will need to set up [volumes](https://github.com/ziquanmiao/minikube_datadog/blob/67c0d53f3d9fa2c55dc47986c1ab82625445a70e/agent_daemon.yaml#L109-L111) and [mountPaths](https://github.com/ziquanmiao/minikube_datadog/blob/67c0d53f3d9fa2c55dc47986c1ab82625445a70e/agent_daemon.yaml#L81-L82) to put the ethemeral configuration files
+
 #### Postgres Example
 Autodiscovery of the postgres pod in this container is straightforward, [simply annotation](https://github.com/ziquanmiao/minikube_datadog/blob/ba94f6072fbfccbaaf8595020690df9b2f6ebdfb/postgres_deployment.yaml#L14-L17) in the configuration file by adding in the typical check sections required.
 
 Note the annotation arguments [here](https://cl.ly/d77e73e9786d) must be identical for the agent to properly connect to the container.
+
+### Prometheus
+Many services (like kubernetes itself) utilizes Prometheus as an enhancement to reveal custom internal metrics specific to the service. 
+
+You can see what the structure of the prometheus metrics look like by running:
+
+```
+minikube ssh
+curl localhost:10255/metrics
+```
+
+Datadog has the innate capability to read the log structure of prometheus produced metrics and turn it into custom metrics.
+The scope of this repo doesn't really touch on it too much, but collecting prometheus metrics can simply be done via annotations done at the deployment level as seen [here](https://github.com/ziquanmiao/minikube_datadog/blob/67c0d53f3d9fa2c55dc47986c1ab82625445a70e/app_deployment.yaml#L15-L17) -- note this example fails on purpose so you can see what an error looks like in agent status
+
+Read more about it via our [documentation](https://docs.datadoghq.com/agent/prometheus/)
 
 ## Live Processes/Containers
 [Live Process/Container Monitoring](https://www.datadoghq.com/blog/live-process-monitoring/) is the capability to get container and process level granularity for all monitored systems.
@@ -146,6 +168,16 @@ Simply add [DD_PROCESS_AGENT_ENABLED](https://github.com/ziquanmiao/minikube_dat
 Sometimes passwords are revealed in the initial run commands, the agent comes equipped with [passwd](https://github.com/ziquanmiao/minikube_datadog/blob/ba94f6072fbfccbaaf8595020690df9b2f6ebdfb/agent_daemon.yaml#L72-L74) to remove a [standard set of arguments](https://docs.datadoghq.com/graphing/infrastructure/process/#process-arguments-scrubbing)
 
 We again need [docker.sock](https://docs.datadoghq.com/graphing/infrastructure/process/#kubernetes-daemonset) to get container information.
+
+### Validation
+
+run ``` kubectl get pods``` to get the pod name of the agent container.
+
+run ```kubectl exec -it POD_NAME bash ``` to hop into the container
+
+run ```agent status``` to see the status summary and look for the integrations section to see agent is collecting metrics
+
+run ``` cat /var/log/datadog/agent.log``` to see logs pertaining to the agent
 
 ## APM Tracing
 The same agent that handles infrastructure metrics can also accommodate receiving [Trace Data](https://www.datadoghq.com/blog/tag/apm/) from a designated [APM module](datadoghq.com/apm/docs) -- these modules sit on top of your applications and forward [payloads](https://docs.datadoghq.com/api/?lang=bash#send-traces) to a local Datadog agent to middle man to our backend.
@@ -185,4 +217,38 @@ run ``` cat /var/log/datadog/trace-agent.log``` to see logs pertaining to the tr
 head over to [Trace Services Page](datadoghq.com/apm/services) and look for your service level metrics and traces!
 
 ## Logs
+
+The same agent polling for metrics periodically for infrastructure metrics, live process metrics, and middle manning trace transcations can also be set up to tail log instances.
+
+Simply turn on [DD_LOGS_ENABLED](https://github.com/ziquanmiao/minikube_datadog/blob/67c0d53f3d9fa2c55dc47986c1ab82625445a70e/agent_daemon.yaml#L44-L45) via the environmental variable in the agent daemon file.
+
+### Tailing Flask logs via Config Maps
+
+Tailing logs from flask is pretty easy using kubernetes config maps.
+
+#### Agent Side
+Simply set up the [mountPath directory](https://github.com/ziquanmiao/minikube_datadog/blob/67c0d53f3d9fa2c55dc47986c1ab82625445a70e/agent_daemon.yaml#L79-L80) connected via the host and the [volume](https://github.com/ziquanmiao/minikube_datadog/blob/67c0d53f3d9fa2c55dc47986c1ab82625445a70e/agent_daemon.yaml#L106-L108) in the agent daemon
+
+#### Flask side
+Set up the corresponding mounts for [volume and mountPath](https://github.com/ziquanmiao/minikube_datadog/blob/67c0d53f3d9fa2c55dc47986c1ab82625445a70e/app_deployment.yaml#L37-L43) so we can connect the flask pod to the relevant agent pod via the host
+
+In the app, set up the app level [logging configurations](https://github.com/ziquanmiao/minikube_datadog/blob/67c0d53f3d9fa2c55dc47986c1ab82625445a70e/flask_app/app.py#L55-L64) so logs are properly pushed to the right log file when routines are run ([example](https://github.com/ziquanmiao/minikube_datadog/blob/67c0d53f3d9fa2c55dc47986c1ab82625445a70e/flask_app/app.py#L73-L79))
+
+### Validation
+
+#### Agent Side
+run ``` kubectl get pods``` to get the pod name of the agent container.
+
+run ```kubectl exec -it POD_NAME bash ``` to hop into the container
+
+run ```agent status``` to see the status summary and look for the logging section to see agent has logs turned on
+
+run ``` cat /var/log/datadog/agent.log``` to see relevant log instances pertaining to the log agent
+
+#### Datadog Side
+
+Navigate to the [logs explorer page](datadoghq.com/logs) and look for flask logs!
+
+
+
 
