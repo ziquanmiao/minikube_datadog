@@ -39,6 +39,7 @@ Store the API key in a kubernetes secret so its not directly in the deployment c
 ```
 kubectl create secret generic datadog-api --from-literal=token=___INSERT_API_KEY_HERE
 ```
+The key is then referenced in the Daemon file [here](https://github.com/ziquanmiao/minikube_datadog/blob/8b48b62278dc52f4f8d2834bc6df3ae8f955acaf/agent_daemon.yaml#L28-L32)
 
 ## build images
 
