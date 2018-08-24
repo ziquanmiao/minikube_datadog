@@ -10,7 +10,7 @@ spec:
       name: datadog-agent
     spec:
       containers:
-      - image: datadog/agent:latest
+      - image: datadog/agent:6.4.1
         imagePullPolicy: Always
         name: datadog-agent
         ports:
@@ -48,7 +48,7 @@ spec:
             value: "true"
           - name: DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL
             value: "true"
-          - name: NON_LOCAL_TRAFFIC
+          - name: DD_DOGSTATSD_NON_LOCAL_TRAFFIC
             value: "true"
           # - name: DD_PROXY_HOST
           #   value: 1.2.34

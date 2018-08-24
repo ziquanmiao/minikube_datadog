@@ -42,8 +42,8 @@ POSTGRES = {
     'user': 'flask',
     'pw': 'flask',
     'db': 'docker',
-    'host': os.environ['DD_AGENT_SERVICE_HOST'],
-    'port': os.environ['POSTGRES_PORT'],
+    'host': os.environ['POSTGRES_SERVICE_HOST'],
+    'port': os.environ['POSTGRES_SERVICE_PORT'],
 }
 pg_url = 'postgresql://%(user)s:%(pw)s@%(host)s:%(port)s/%(db)s' % POSTGRES
 con = sqlalchemy.create_engine(pg_url, client_encoding='utf8')

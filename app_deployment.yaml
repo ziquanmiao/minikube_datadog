@@ -11,10 +11,10 @@ spec:
     metadata:
       labels:
         app: flaskapp
-      annotations:
-        ad.datadoghq.com/flaskapp.check_names: '["prometheus"]'
-        ad.datadoghq.com/flaskapp.init_configs: '[{}]'
-        ad.datadoghq.com/flaskapp.instances: '[{"prometheus_url":"%%host%%/metrics","metrics":["*"],"namespace":"apple"}]'
+      # annotations:
+      #   ad.datadoghq.com/flaskapp.check_names: '["prometheus"]'
+      #   ad.datadoghq.com/flaskapp.init_configs: '[{}]'
+      #   ad.datadoghq.com/flaskapp.instances: '[{"prometheus_url":"%%host%%/metrics","metrics":["*"],"namespace":"apple"}]'
         # 6.5 ad.datadoghq.com/flaskapp.logs: '[{"type":"file","path":"/var/log/mylog.json","service":"flask","source":"python","sourcecategory":"sourcecode"}]'
     spec:
       containers:
@@ -32,8 +32,6 @@ spec:
           value: '8126'
         - name: DD_AGENT_STATSD_PORT
           value: '8125'
-        - name: POSTGRES_PORT
-          value: '5432'
         volumeMounts:
           - name: flasklogs
             mountPath: /var/log
@@ -41,3 +39,32 @@ spec:
         - hostPath:
             path: /var/log
           name: flasklogs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flaskapp
+spec:
+  selector:
+    app: flaskapp
+  ports:
+  - name: http
+    protocol: TCP
+    port: 5000
+---
+
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: cm-datadog-confd
+  namespace: default
+data:
+  flasklogs.yaml: |-
+    init_config:
+    instances:
+    logs:
+    - type: file
+      path: /var/log/mylog.json
+      service: flask
+      source: python
+      sourcecategory: sourcecode 

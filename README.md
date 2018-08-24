@@ -7,10 +7,9 @@ In addition, you will need a Datadog Account and have access to an API key -- St
 
 This repo showcases a minikube-based path to deploying a simple flask app container that returns some sample text contained in a separate postgres container. 
 
-The goal of this repo is to demonstrate the steps involved in installing a [Datadog]
-(datadoghq.com/) agent to demonstrate the product's [Infrastructure Monitoring](https://www.datadoghq.com/server-monitoring/), [Application Performance Monitoring](https://www.datadoghq.com/blog/announcing-apm/), [Live Process/Container Monitoring](https://www.datadoghq.com/blog/live-process-monitoring/), and [Log Monitoring Capabilities](https://www.datadoghq.com/blog/announcing-logs/) in a Kubernetes x Docker based environment.
+The goal of this repo is to demonstrate the steps involved in installing a [Datadog](datadoghq.com/) agent to demonstrate the product's [Infrastructure Monitoring](https://www.datadoghq.com/server-monitoring/), [Application Performance Monitoring](https://www.datadoghq.com/blog/announcing-apm/), [Live Process/Container Monitoring](https://www.datadoghq.com/blog/live-process-monitoring/), and [Log Monitoring Capabilities](https://www.datadoghq.com/blog/announcing-logs/) in a Kubernetes x Docker based environment.
 
-This repo makes no accommodations for proxy scenarios or situations where machines are unable to pull from the internet to download packages
+This repo makes no accommodations for proxy scenarios and does not fullyaccommodate situations where machines are unable to pull from the internet to download packages
 
 # Steps to Success
 
@@ -51,20 +50,21 @@ docker build -t sample_postgres:007 ./postgres/
 
 ## deploy things
 
-Deploy the application container and turn it into a service
-```
-kubectl create -f app_deployment.yaml
-kubectl create -f app_service.yaml
-```
-
 Deploy the postgres container
 ```
 kubectl create -f postgres_deployment.yaml
 ```
 
+Deploy the application container and turn it into a service
+Also create a configMap for the logs product
+```
+kubectl create -f app_deployment.yaml
+```
+
+
+
 Deploy the Datadog agent container
 
-**super important** edit the agent_daemon.yaml file and include the API KEY for `DD_API_KEY` [environment variable](https://cl.ly/2q3U3l1b240v)
 ```
 kubectl create -f agent_daemon.yaml
 ```
@@ -80,17 +80,11 @@ Deploy kubernetes state files to demonstrate [kubernetes_state check](https://do
 kubectl create -f kubernetes
 ```
 
-Deploy a logs ConfigMap to demonstrate Datadog Daemon Log parsing
-
-```
-kubectl create -f logsConfigMap.yaml
-```
-
 And we are done!
 
 # Use the Flask App
 
-The Flask App offers 3 endpoints that returns some text `IP:5000/`, `IP:5000/query`, `IP:5000/bad`
+The Flask App offers 3 endpoints that returns some text `FLASK_SERVICE_IP:5000/`, `FLASK_SERVICE_IP:5000/query`, `FLASK_SERVICE_IP:5000/bad`
 
 Run ```kubectl get services``` to find the [FLASK_SERVICE_IP](https://cl.ly/a344b20d5481) address of the flask application service
 
