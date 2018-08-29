@@ -9,7 +9,7 @@ This repo showcases a minikube-based path to deploying a simple flask app contai
 
 The goal of this repo is to demonstrate the steps involved in installing a [Datadog](datadoghq.com/) agent to demonstrate the product's [Infrastructure Monitoring](https://www.datadoghq.com/server-monitoring/), [Application Performance Monitoring](https://www.datadoghq.com/blog/announcing-apm/), [Live Process/Container Monitoring](https://www.datadoghq.com/blog/live-process-monitoring/), and [Log Monitoring Capabilities](https://www.datadoghq.com/blog/announcing-logs/) in a Kubernetes x Docker based environment.
 
-This repo makes no accommodations for proxy scenarios and does not fullyaccommodate situations where machines are unable to pull from the internet to download packages
+This repo makes no accommodations for proxy scenarios and does not fully accommodate situations where machines are unable to pull from the internet to download packages
 
 # Steps to Success
 
@@ -105,7 +105,7 @@ to see the Flask application at work
 
 The Datadog agent container should now be deployed and is acting as a collector and middleman between the services and Datadog's backend. Through actions -- curling the endpoints -- and doing nothing, metrics will be generated and directed to the corresponding Datadog Account based off your supplied API key
 
-Below is a quick discussion on some points of interest
+Below is a quick discussion on some points of interest.
 
 ## Infrastructure Product
 This part pertains to the ingestion of timeseries data, status checks, and events. 
@@ -113,13 +113,13 @@ This part pertains to the ingestion of timeseries data, status checks, and event
 By deploying the agent referencing the [Datadog Container Image](https://github.com/ziquanmiao/minikube_datadog/blob/ba94f6072fbfccbaaf8595020690df9b2f6ebdfb/agent_daemon.yaml#L13) in the agent_daemon.yaml file, the check automatically comes prepackaged with system level (CPU, Mem, IO, Disk), [Kubernetes](https://docs.datadoghq.com/agent/kubernetes/), and [Docker](https://docs.datadoghq.com/integrations/docker_daemon/) level checks.
 
 The gist of the setup portion is:
-1. Deploy the agent daemon the proper environment variables, volume and volumeMount arguments
+1. Deploy the agent daemon with the proper environment variables, volume and volumeMount arguments
 2. Deploy relevant applications with annotations
 3. Validate metrics go to agent and ends up in our application
 
 ### System Metric Requirements
 
-[volumeMount](https://github.com/ziquanmiao/minikube_datadog/blob/ba94f6072fbfccbaaf8595020690df9b2f6ebdfb/agent_daemon.yaml#L65-L67) and [volume](https://github.com/ziquanmiao/minikube_datadog/blob/ba94f6072fbfccbaaf8595020690df9b2f6ebdfb/agent_daemon.yaml#L93-L95) for the proc directory is required from the host level
+[volumeMount](https://github.com/ziquanmiao/minikube_datadog/blob/ba94f6072fbfccbaaf8595020690df9b2f6ebdfb/agent_daemon.yaml#L65-L67) and [volume](https://github.com/ziquanmiao/minikube_datadog/blob/ba94f6072fbfccbaaf8595020690df9b2f6ebdfb/agent_daemon.yaml#L93-L95) for the proc directory is required from the host level.
 
 In the Datadog web application you can reference the [host map](datadoghq.com/infrastructure/map), and filter on the particular hostname to see what is going on.
 
@@ -134,7 +134,7 @@ Rather than having a Mechanical Turk sit on standy ready to make the changes, th
 To set up autodiscovery, you will need to set up [volumes](https://github.com/ziquanmiao/minikube_datadog/blob/67c0d53f3d9fa2c55dc47986c1ab82625445a70e/agent_daemon.yaml#L109-L111) and [mountPaths](https://github.com/ziquanmiao/minikube_datadog/blob/67c0d53f3d9fa2c55dc47986c1ab82625445a70e/agent_daemon.yaml#L81-L82) to put the ethemeral configuration files
 
 #### Postgres Example
-Autodiscovery of the postgres pod in this container is straightforward, [simply annotation](https://github.com/ziquanmiao/minikube_datadog/blob/ba94f6072fbfccbaaf8595020690df9b2f6ebdfb/postgres_deployment.yaml#L14-L17) in the configuration file by adding in the typical check sections required.
+Autodiscovery of the postgres pod in this container is straightforward, [simply annotate](https://github.com/ziquanmiao/minikube_datadog/blob/ba94f6072fbfccbaaf8595020690df9b2f6ebdfb/postgres_deployment.yaml#L14-L17) the configuration file by adding in the typical check sections required.
 
 Note the annotation arguments [here](https://cl.ly/d77e73e9786d) must be identical for the agent to properly connect to the container.
 
