@@ -1,7 +1,7 @@
 
 # Intro
 
-This Workshop assumes [minikube](https://github.com/kubernetes/minikube/blob/v0.28.2/README.md) is installed (along with kubectl + kubernetes) and has only been tested in a Mac environment.
+This Workshop assumes both Docker and [minikube](https://github.com/kubernetes/minikube/blob/v0.28.2/README.md) are installed (along with kubectl + kubernetes), and has only been tested in a Mac environment.
 
 In addition, you will need a Datadog Account and have access to an API key -- Start a Free Trial [Here](https://www.datadoghq.com/lpg6/)!
 
